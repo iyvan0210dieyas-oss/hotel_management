@@ -1,0 +1,24 @@
+{
+  "name": "hotel-management-system",
+  "version": "1.0.0",
+  "description": "Professional Full-Stack Hotel Management System with React, Redux Toolkit, Node.js, Express & PostgreSQL",
+  "scripts": {
+    "start": "node server/src/server.js",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client",
+    "build": "npm run build --prefix client",
+    "db:init": "npm run db:init --prefix server",
+    "db:seed": "npm run db:seed --prefix server"
+  },
+  "keywords": [
+    "hotel-management",
+    "react",
+    "redux-toolkit",
+    "express",
+    "postgresql",
+    "leaflet",
+    "openstreetmap"
+  ],
+  "author": "GrandStay Engineering",
+  "license": "ISC"
+}
