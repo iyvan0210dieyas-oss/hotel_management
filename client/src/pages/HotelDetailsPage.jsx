@@ -17,6 +17,7 @@ import {
 import { deleteHotel, getHotelById, fetchHotelById } from '../features/hotels/hotelSlice';
 import MapView from '../components/MapView';
 import DeletePopup from '../components/DeletePopup';
+import { getImageUrl } from '../utils/imageUrl';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
 
@@ -135,15 +136,6 @@ const HotelDetailsPage = () => {
       </div>
     );
   }
-
-  const getImageUrl = (img) => {
-    if (!img) return FALLBACK_IMAGE;
-    if (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('data:')) {
-      return img;
-    }
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-    return `${apiUrl}/uploads/${img}`;
-  };
 
   const imageUrl = getImageUrl(hotel.image);
 

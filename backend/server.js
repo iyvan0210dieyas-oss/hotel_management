@@ -9,14 +9,37 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS configuration (allow requests from frontend)
+// Allowed origins
+const allowedOrigins = [
+  'https://hotelmanagementiyvan.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
+// CORS configuration (allow requests from Vercel and local dev)
 app.use(
   cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app') ||
+        process.env.NODE_ENV !== 'production';
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    credentials: true,
   })
 );
+
+app.options('*', cors());
 
 // Express JSON and URL-encoded body parsing
 app.use(express.json());
@@ -26,33 +49,31 @@ app.use(express.urlencoded({ extended: true }));
 const uploadsPath = path.join(__dirname, 'uploads');
 app.use('/uploads', express.static(uploadsPath));
 
-// GET /api/health - Service health check (independent of live database)
+// GET /api/health - Service health check
 app.get('/api/health', (req, res) => {
-  res.json({
+  res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'GrandStay Hotel Management API',
-    environment: process.env.NODE_ENV || 'development',
-    database: 'PostgreSQL connection pool configured (lazy connect)',
+    service: 'Hotel Management System Backend API',
+    port: PORT,
   });
 });
 
-// Mount Hotel API Routes
+// Mount Hotel CRUD API routes
 app.use('/api/hotels', hotelRoutes);
 
-// Centralized Error Handling Middleware
+// Centralized error handling
 app.use(errorHandler);
 
-// Start Express Server if executed directly
+// Start server if executed directly
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log('=======================================================');
-    console.log('🏨 GrandStay Hotel Management Backend Server');
+    console.log(`=======================================================`);
+    console.log(`🏨 Hotel Management System Backend running on port ${PORT}`);
     console.log(`🚀 Server running on: http://localhost:${PORT}`);
-    console.log(`📁 Static uploads path: ${uploadsPath}`);
+    console.log(`📁 Static uploads directory: ${uploadsPath}`);
     console.log(`🩺 Health check URL: http://localhost:${PORT}/api/health`);
-    console.log('🐘 PostgreSQL pool: Configured (ready for connection)');
-    console.log('=======================================================');
+    console.log(`=======================================================`);
   });
 }
 

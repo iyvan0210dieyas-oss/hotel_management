@@ -21,8 +21,7 @@ const HotelListPage = () => {
   const [hotelToDelete, setHotelToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Fetch hotels whenever filters or page change
-  useEffect(() => {
+  const loadData = () => {
     dispatch(
       fetchHotels({
         search: filters.search,
@@ -32,6 +31,11 @@ const HotelListPage = () => {
         limit: pagination.limit,
       })
     );
+  };
+
+  // Fetch hotels whenever filters or page change
+  useEffect(() => {
+    loadData();
   }, [dispatch, filters.search, filters.minPrice, filters.maxPrice, pagination.page, pagination.limit]);
 
   // Show API errors as toasts
@@ -108,6 +112,8 @@ const HotelListPage = () => {
           <HotelList
             hotels={hotels}
             loading={loading}
+            error={error}
+            onRetry={loadData}
             onDeleteClick={(hotel) => setHotelToDelete(hotel)}
             onResetFilters={() => dispatch(resetFilters())}
           />

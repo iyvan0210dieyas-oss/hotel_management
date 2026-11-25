@@ -84,10 +84,19 @@ const createTableQuery = `
   );
 `;
 
+// Determine whether SSL is needed (required for cloud hosted PostgreSQL like Neon, Supabase, Render, Railway)
+const isCloudDatabase =
+  process.env.DATABASE_URL &&
+  !process.env.DATABASE_URL.includes('localhost') &&
+  !process.env.DATABASE_URL.includes('127.0.0.1');
+
 const poolConfig = process.env.DATABASE_URL
   ? {
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      ssl:
+        isCloudDatabase || process.env.NODE_ENV === 'production'
+          ? { rejectUnauthorized: false }
+          : false,
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000,
@@ -115,7 +124,7 @@ async function initDatabase() {
     const client = await pool.connect();
     await client.query(createTableQuery);
 
-    // If table is completely empty, optionally seed initial hotels
+    // If table is completely empty, seed initial hotels
     const countResult = await client.query('SELECT COUNT(*) AS total FROM hotels;');
     const count = parseInt(countResult.rows[0].total, 10);
     if (count === 0) {
@@ -130,7 +139,11 @@ async function initDatabase() {
 
     client.release();
     console.log('✅ Successfully connected to native PostgreSQL database!');
-    console.log(`📊 Database: ${process.env.DB_NAME || 'hotel_management'} on ${process.env.DB_HOST || '127.0.0.1'}:${process.env.DB_PORT || '5432'}`);
+    console.log(
+      `📊 Database: ${process.env.DB_NAME || 'hotel_management'} | Host: ${
+        process.env.DATABASE_URL ? 'Cloud Connection String (DATABASE_URL)' : (process.env.DB_HOST || '127.0.0.1')
+      }`
+    );
     return true;
   } catch (err) {
     console.error(`❌ Failed to connect to native PostgreSQL: ${err.message}`);

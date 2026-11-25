@@ -1,25 +1,17 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiMapPin, FiEdit2, FiTrash2, FiEye } from 'react-icons/fi';
+import { getImageUrl } from '../utils/imageUrl';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
 
 const HotelCard = ({ hotel, onDeleteClick }) => {
-  const getImageUrl = () => {
-    if (!hotel.image) return FALLBACK_IMAGE;
-    if (hotel.image.startsWith('http://') || hotel.image.startsWith('https://') || hotel.image.startsWith('data:')) {
-      return hotel.image;
-    }
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-    return `${apiUrl}/uploads/${hotel.image}`;
-  };
-
   return (
     <article className="hotel-card" data-testid={`hotel-card-${hotel.id}`}>
       <div className="hotel-card-media">
         <Link to={`/hotels/${hotel.id}`} tabIndex={-1} aria-hidden="true">
           <img
-            src={getImageUrl()}
+            src={getImageUrl(hotel.image)}
             alt={`${hotel.title} exterior view and luxury rooms`}
             className="hotel-card-image"
             loading="lazy"
